@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タグチェックリスト</title>
+	<link rel="stylesheet" href="styles/index.css" />
+</head>
+<body>
+    <h1>タグチェックリスト</h1>
+
+    <form id="tag-form">
+        <div id="checklist-container"></div>
+        <button type="submit">テスト開始</button>
+    </form>
+
+    <script>
+        // ページが読み込まれたときにタグを取得
+        window.onload = async function() {
+            try {
+                const response = await fetch('http://localhost:4000/info');
+                const tags = await response.json();
+
+                const checklistContainer = document.getElementById('checklist-container');
+                tags.forEach(tag => {
+                    const label = document.createElement('label');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.name = 'tags';
+                    checkbox.value = tag;
+
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(tag));
+
+                    checklistContainer.appendChild(label);
+                    checklistContainer.appendChild(document.createElement('br'));
+                });
+            } catch (error) {
+                console.error('Error loading tags:', error);
+            }
+        };
+
+        // フォームが送信されたときに、チェックされたタグを別のページに送信
+        document.getElementById('tag-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // ページ遷移を防ぐ
+
+            const selectedTags = [];
+            const checkboxes = document.querySelectorAll('input[name="tags"]:checked');
+            checkboxes.forEach(checkbox => {
+                selectedTags.push(checkbox.value);
+            });
+
+            // "テスト開始"ボタンを押すと別のページに遷移
+            const params = new URLSearchParams({ tags: selectedTags.join(',') }).toString();
+            window.location.href = `test.html?${params}`;
+        });
+    </script>
+</body>
+</html>

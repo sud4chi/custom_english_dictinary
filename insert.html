@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>単語送信</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #data-form {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 300px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.6rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: 5px;
+      font-weight: bold;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      opacity: 0.95;
+    }
+
+    .popup.success {
+      background-color: #28a745;
+    }
+
+    .popup.error {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>単語送信フォーム</h1>
+  <form id="data-form">
+    <label for="input-data">調べたい単語を入力してください:</label>
+    <input type="text" id="input-data" name="input" required />
+    <button type="submit">送信</button>
+  </form>
+
+  <script>
+    document.getElementById("data-form").addEventListener("submit", async (event) => {
+      event.preventDefault(); // ページのリロードを防止
+
+      const userInput = document.getElementById("input-data").value;
+      document.getElementById("input-data").value = "";
+
+      try {
+        const response = await fetch("http://localhost:3000/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ word: userInput }), // 入力データをJSON形式で送信
+        });
+        const result = await response.json();
+        if (result.success) {
+          console.log("成功:", result.data);
+          showPopup("success", `${userInput} を追加しました！`);
+          // 正常データを処理
+        } else {
+          console.warn("エラー:", result.message);
+          showPopup("error", `データ取得失敗: ${result.message}`);
+          // エラー時の通知や処理
+        }
+      } catch (error) {
+        console.error("通信エラー:", error);
+        alert("通信エラーが発生しました");
+      }
+    });
+
+    function showPopup(type, message) {
+      const popup = document.createElement("div");
+      popup.className = `popup ${type}`; // ポップアップのクラスを設定 (成功 or 失敗)
+      popup.textContent = message; // メッセージを設定
+
+      // ポップアップを画面に追加
+      document.body.appendChild(popup);
+
+      // 一定時間後にポップアップを削除
+      setTimeout(() => {
+        popup.remove();
+      }, 3000); // 3秒後に消える
+    }
+  </script>
+</body>
+</html>
+
+
