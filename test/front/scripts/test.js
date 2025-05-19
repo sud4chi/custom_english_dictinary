@@ -33,8 +33,9 @@ generateButton.addEventListener("click", async () => {
     currentQuestion = await response.json();
     defIndex = 1;
     // `properties.Definition` の確認と表示
-    questionElement.textContent = `${parseJSONToStr(currentQuestion.blocks.results, 0)}`;
-    questionElement.textContent += `${parseJSONToStr(currentQuestion.blocks.results, 1)}`;
+	questionElement.textContent = "";
+	appendNewLine(currentQuestion, 0);
+	appendNewLine(currentQuestion, 1);
     answerElement.textContent = ""; // 答えをクリア
     showAnswerButton.disabled = false; // 答えボタンを有効化
     correctButton.disabled = true;
@@ -49,6 +50,21 @@ generateButton.addEventListener("click", async () => {
   }
 });
 
+function appendNewLine(currentQuestion, index){
+  const questionElement = document.getElementById("question");
+  const meaning = parseJSONToStr(currentQuestion.blocks.results, index);
+  if(currentQuestion.blocks.results[index].heading_3){
+	const newLine = document.createElement("h3");
+	newLine.textContent = meaning;
+	questionElement.appendChild(newLine);
+  }else if(currentQuestion.blocks.results[index].numbered_list_item){
+	const newLine = document.createElement("li");
+	newLine.textContent = meaning;
+	questionElement.appendChild(newLine);
+  }
+}
+
+
 // 答えボタンの動作
 showAnswerButton.addEventListener("click", () => {
   if (currentQuestion) {
@@ -62,7 +78,8 @@ showAnswerButton.addEventListener("click", () => {
 
 nextButton.addEventListener("click", () => {
   defIndex += 1;
-  questionElement.textContent += `\n${parseJSONToStr(currentQuestion.blocks.results, defIndex)}`;
+  const questionElement = document.getElementById("question");
+  appendNewLine(currentQuestion, defIndex);
   if(currentQuestion.blocks.results.length > defIndex+1){
     nextButton.disabled = false;
   }else{
@@ -79,6 +96,7 @@ document.getElementById("correct-button").addEventListener("click", () => {
     },
     body: JSON.stringify({ isCorrect: true, id: currentQuestion.id})
   });
+  generateButton.click(); 
 }); 
 
 document.getElementById("wrong-button").addEventListener("click", () => {
@@ -89,6 +107,7 @@ document.getElementById("wrong-button").addEventListener("click", () => {
     },
     body: JSON.stringify({ isCorrect: false, id: currentQuestion.id})
   });
+	generateButton.click(); 
 }); 
 
 document.getElementById("back-button").addEventListener("click", () => {

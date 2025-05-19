@@ -59,7 +59,7 @@
     }
 
     .popup {
-      position: fixed;
+      position: static;
       top: 20px;
       right: 20px;
       padding: 1rem 1.5rem;
@@ -78,16 +78,26 @@
     .popup.error {
       background-color: #dc3545;
     }
+
+	.wrapper {
+  		display: flex;
+  		flex-direction: column;
+  		align-items: center;
+  		gap: 1rem;
+	}
+
   </style>
 </head>
 <body>
-  <h1>単語送信フォーム</h1>
-  <form id="data-form">
-    <label for="input-data">調べたい単語を入力してください:</label>
-    <input type="text" id="input-data" name="input" required />
-    <button type="submit">送信</button>
-  </form>
-
+  <div class="wrapper">
+	<h1>単語送信フォーム</h1>
+	<form id="data-form">
+	  <label for="input-data">調べたい単語を入力してください:</label>
+	  <input type="text" id="input-data" name="input" required />
+	  <button type="submit">送信</button>
+	</form>
+	<div id="popup-container"></div>
+  </div>
   <script>
     document.getElementById("data-form").addEventListener("submit", async (event) => {
       event.preventDefault(); // ページのリロードを防止
@@ -125,8 +135,8 @@
       popup.textContent = message; // メッセージを設定
 
       // ポップアップを画面に追加
-      document.body.appendChild(popup);
-
+	  const popupContainer = document.getElementById("popup-container");
+	  popupContainer.appendChild(popup);
       // 一定時間後にポップアップを削除
       setTimeout(() => {
         popup.remove();
